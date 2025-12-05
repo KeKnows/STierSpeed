@@ -9,42 +9,66 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: stierdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
-      - name: Install backend deps
-        run: |
-          pip install -r backend/requirements.txt
-      - name: Start Postgres (for more realistic tests)
-        uses: harmon758/postgres-action@v1
-        with:
-          postgres version: "15"
-          postgres db: stierdb
-          postgres user: postgres
-          postgres password: password
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+
       - name: Run tests
         env:
           DATABASE_URL: postgresql://postgres:password@localhost:5432/stierdb
         run: pytest -q
 
+
   build-and-deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
+
+      # Authenticate to Google Cloud
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # Install gcloud CLI
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
           project_id: ${{ secrets.GCP_PROJECT }}
+
+      # Build & push to Google Cloud Artifact Registry
       - name: Build and push image
         run: |
           IMAGE=gcr.io/${{ secrets.GCP_PROJECT }}/stierspeed:$GITHUB_SHA
           gcloud builds submit --tag $IMAGE
+
+      # Deploy to Cloud Run
       - name: Deploy to Cloud Run
         run: |
           IMAGE=gcr.io/${{ secrets.GCP_PROJECT }}/stierspeed:$GITHUB_SHA
@@ -54,4 +78,3 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }},SECRET_KEY=${{ secrets.SECRET_KEY }}
-
