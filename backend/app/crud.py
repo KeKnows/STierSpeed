@@ -69,3 +69,10 @@ def delete_workout(workout_id: str):
     finally:
         db.close()
 
+def get_user_by_id(user_id: str):
+    db = SessionLocal()
+    try:
+        stmt = select(User).where(User.id == user_id)
+        return db.execute(stmt).scalar_one_or_none()
+    finally:
+        db.close()
