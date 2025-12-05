@@ -19,7 +19,7 @@ jobs:
         run: |
           pip install -r backend/requirements.txt
       - name: Start Postgres (for more realistic tests)
-        uses: harmon758/postgres-action@v2
+        uses: harmon758/postgres-action@v1
         with:
           postgres version: "15"
           postgres db: stierdb
