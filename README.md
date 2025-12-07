@@ -62,3 +62,26 @@ Social/community features
 This version keeps everything clear, professional, and concise, perfect for submission.
 
 If you want, I can also add a small “how to run” section in one or two lines so it looks like a fully complete README for a real software project. Do you want me to do that?
+
+How to Run
+
+Install dependencies:
+
+pip install -r requirements.txt
+npm install
+
+
+Start backend:
+
+uvicorn app.main:app --reload
+
+
+Start frontend:
+
+npm start
+
+
+Access the app via http://localhost:3000
+.
+
+Optional: Use PostgreSQL for storing user and workout data. Ensure database credentials are correctly configured in .env or config.py.
