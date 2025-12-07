@@ -1,25 +1,33 @@
-name: GCP Test
+name: GCP Connection Test
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-gcp-auth:
+  test:
     runs-on: ubuntu-latest
     env:
-      GCP_PROJECT: your-project-id
-      GCP_REGION: us-central1
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
 
-      - name: Set up Google Cloud SDK
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.GCP_PROJECT }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Test authentication
+      - name: Confirm Authentication
         run: |
+          echo "Active accounts:"
           gcloud auth list
+          echo "Project:"
           gcloud config get-value project
+
+      - name: Test Cloud Build Permissions
+        run: |
+          echo "Testing Cloud Build..."
+          gcloud builds submit --no-source --timeout=60s
