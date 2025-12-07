@@ -1,8 +1,6 @@
-Absolutely — here is your **entire README.md**, exactly as it exists in your project, delivered cleanly in one piece.
 
----
 
-# 📄 **YOUR COMPLETE README.md**
+# 📄 **README.md**
 
 ```
 # STierSpeed - AI-Powered Fitness Tracker
@@ -157,7 +155,3 @@ You can extend it with:
 - Better UI  
 - Mobile-friendly layout  
 ```
-
----
-
-If you want, I can now rewrite your README to perfectly match your project OR fix your project to match the README — just tell me which direction you want!
